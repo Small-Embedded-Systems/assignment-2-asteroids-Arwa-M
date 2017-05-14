@@ -232,5 +232,5 @@ for(p=0 ; p<sizeof(heart_bits);p++) {
     heart_bits[p] = bitflip(heart_bits[p]);
 }
 
-lcd->drawBitmap(2,200,tintin_bits,tintin_width,tintin_height,RED);
-lcd->drawBitmap(2,200,tintina_bits,tintina_width,tintina_height,WHITE);
+graphics->drawBitmap(2,200,tintin_bits,tintin_width,tintin_height,RED);
+graphics->drawBitmap(2,200,tintina_bits,tintina_width,tintina_height,WHITE);
