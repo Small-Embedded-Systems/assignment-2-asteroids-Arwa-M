@@ -90,3 +90,215 @@ void moveUp(void){
 		accel = accel + accAdd;
 	}
 }
+
+/* Ship collision detected */
+void shipCollision(struct rock *l){
+	for( ; l ; l = l->next ) {
+		if(l->p.x<(player.p.x+8) && l->p.x>(player.p.x- 8)){
+			if(l->p.y<(player.p.y + 8) && l->p.y>(player.p.y - 8)){
+				if (player.shields <= 0){
+					player.shields = 0;
+					lives--;
+				} else {
+					player.shields--;
+				}
+				elapsed_time=0;
+				player.p.x = 250;
+				player.p.y = 100;
+			}
+		}
+	}
+}
+
+/* Missile collision detected */
+void missileCollision(struct missile *l, struct rock *r){
+	for ( ; l ; l = l->next){ 
+		for( ; r ; r =r->next){ 
+			if(l->p.x > (r->p.x - 10) && l->p.x < (r->p.x + 10)){
+				if(l->p.y > (r->p.y - 10) && l->p.y < (r->p.y + 10)){
+					l->ttl = 0;
+					r->ttl = 0;
+				}
+			}
+		}
+	}
+}
+
+/* Missile system */
+void missileSystem(){
+	struct missile *newShot = allocate_missile_node();
+	if(newShot){
+		newShot->next = shots;
+		shots = newShot;
+		newMissile(newShot);
+	}
+}
+
+/* Constructs new missiles */
+void newMissile(struct missile *l){
+	l->angle = player.angle;
+	l->p.x = player.p.x;
+	l->p.y = player.p.y;
+	l->v.x = 200 * (-cos(radians(player.angle)));
+	l->v.y = 200 * (sin(radians(player.angle)));
+	l->ttl = 200;
+}
+
+/* Updates missile list */
+void updateMissileList(struct missile *l){
+	for ( ; l ; l = l->next){
+		if (l->next->ttl <= 0){
+			struct missile *expiredM = l->next;
+			l->next = l->next->next;
+			missileFreeNode(expiredM);
+		}		
+	}
+}
+
+void moveMissiles(struct missile *l){
+	for ( ; l ; l = l->next){
+		l->p.x += l->v.x * Dt;
+		l->p.y += l->v.y * Dt;
+		if( l->p.x <0 || 480 <l->p.x ) l->ttl=0;
+		if( l->p.y<10 || 260 <l->p.y ) l->ttl=0;
+
+		l->ttl -= Dt;	
+	}	
+}
+
+/* Loads missiles */
+void loadMissiles(){
+	int n;
+	for(n=0; n<(heapsize-1) ; n++){
+		missile_data[n].next = &missile_data[n+1];
+	}
+	missile_data[n].next = NULL;
+	freeMissileNodes = &missile_data[0];
+}
+
+shot_t *allocate_missile_node(void){
+	shot_t *node = NULL;
+	if (freeMissileNodes){
+		node = freeMissileNodes;
+		freeMissileNodes = freeMissileNodes->next;
+	}
+	return node;
+}
+
+void missileFreeNode(shot_t *n){
+	n->next = freeMissileNodes;
+	freeMissileNodes = n;
+}
+
+/* Asteroid System*/
+struct rock * newAsteroids(){
+	int i;
+	for(i = 0; i < heapsize-1; i++){
+		struct rock *newRock = allocate_rock_node();
+		if(newRock){
+			newRock->next = asteroids;
+			asteroids = newRock;
+			
+			switch (randrange(1,5)){
+				case 1 :
+					newRock->p.x = randrange(0,100);
+					newRock->p.y = randrange(0,270);
+					newRock->v.x = 1;
+					if(newRock->p.y > 140) newRock->v.y = -10;
+					if(newRock->p.y <= 140) newRock->v.y = 10;
+				break;
+				case 2 :
+					newRock->p.x = randrange(280,480);
+					newRock->p.y = randrange(0,270);
+					newRock->v.x = -1;
+					if(newRock->p.y > 140) newRock->v.y = -10;
+					if(newRock->p.y <= 140) newRock->v.y = 10;
+				break;	
+				case 3 :
+					newRock->p.x = randrange(0,480);
+					newRock->p.y = randrange(0,100);
+					newRock->v.y = 1;
+					if(newRock->p.x > 200) newRock->v.x = -10;
+					if(newRock->p.y <= 200) newRock->v.x = 10;
+				break;	
+				case 4 :
+					newRock->p.x = randrange(0,480);
+					newRock->p.y = randrange(170,270);
+					newRock->v.y = 1;
+					if(newRock->p.x > 200) newRock->v.x = -10;
+					if(newRock->p.y <= 200) newRock->v.x = 10;
+				break;
+				default:
+				break;
+			}
+			newRock->ttl = 2000;
+		}
+		updateRockList(asteroids);
+	}
+	return asteroids;
+}
+
+/* Loads asteriods */
+void loadAsteroids(){
+	int n;
+	for(n=0; n<(heapsize-1) ; n++){
+		rock_data[n].next = &rock_data[n+1];
+	}
+	rock_data[n].next = NULL;
+	freeRockNodes = &rock_data[0];	
+}
+
+rock_t *allocate_rock_node(void){
+	rock_t *node = NULL;
+	if (freeRockNodes){
+		node = freeRockNodes;
+		freeRockNodes = freeRockNodes->next;
+	}
+	return node;
+}
+
+void rockFreeNode(rock_t *n){
+	n->next = freeRockNodes;
+	freeRockNodes = n;
+}
+
+/* Updates rock list */
+void updateRockList(struct rock *l){
+	for ( ; l ; l = l->next){
+		if (l->next->ttl <= 0){
+			struct rock *expiredR = l->next;
+			l->next = l->next->next;
+			rockFreeNode(expiredR);
+		}		
+	}
+}
+
+void moveRocks(struct rock *l){
+	for ( ; l ; l = l->next){
+		l->p.x += l->v.x * Dt;
+		l->p.y += l->v.y * Dt;
+		if( l->p.x<-20 || 500<l-> p.x ) l->ttl=0;
+		if( l->p.y<25 || 280<l-> p.y ) l->ttl=0;
+		l->ttl -= Dt;
+	}	
+}
+
+void physics(void)
+{
+	if (mode){
+		elapsed_time = elapsed_time + 1;
+		score += (int) elapsed_time;
+		
+		moveShip(player);
+		moveMissiles(shots);
+		moveRocks(asteroids);
+		
+		asteroids = newAsteroids();
+		
+		missileCollision(shots, asteroids);
+		shipCollision(asteroids);
+		
+		updateMissileList(shots);
+		updateRockList(asteroids);
+	} 
+}
