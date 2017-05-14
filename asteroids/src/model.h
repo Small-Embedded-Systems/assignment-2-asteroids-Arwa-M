@@ -45,7 +45,6 @@ void moveRight(void);
 void moveUp(void);
 
 void missileSystem();
-void asteroidsSystem();
 void newMissile(struct missile *r);
 void newAsteroid(struct rock *r);
 
@@ -58,6 +57,7 @@ void moveRocks(struct rock *l);
 void updateMissileList(struct missile *l);
 void updateRockList(struct rock *l);
 
+struct rock *newAsteroids(void);
 rock_t *allocate_rock_node(void);
 shot_t *allocate_missile_node(void);
 
