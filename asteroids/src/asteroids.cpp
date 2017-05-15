@@ -38,6 +38,7 @@ bool game = false;
 void initialiseShip(ship){
 	player.p.x = 250;
 	player.p.y = 100;
+	player.lives =5;
 	player.shields = 3;
 }
 
@@ -53,7 +54,7 @@ int main()
 	
 	lives = 5;
 	score = 0;
-	shields = 3;
+	shields = player.shields;
 	elapsed_time = 0;
 	
 	/* Press to start */
@@ -69,7 +70,7 @@ int main()
 			initialiseShip(player);
 		}
 		/* When each life is lost detach all tickers and initate gameover screen*/
-		if(lives==0 && shields==0){
+		if(player.lives==0 && player.shields==0){
 			gameEnd = true;
 			game = false;
 			wait_ms(200);
