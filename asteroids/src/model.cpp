@@ -98,7 +98,7 @@ void shipCollision(struct rock *l){
 			if(l->p.y<(player.p.y + 8) && l->p.y>(player.p.y - 8)){
 				if (player.shields <= 0){
 					player.shields = 0;
-					lives--;
+					player.lives--;
 				} else {
 					player.shields--;
 				}
@@ -118,6 +118,7 @@ void missileCollision(struct missile *l, struct rock *r){
 				if(l->p.y > (r->p.y - 10) && l->p.y < (r->p.y + 10)){
 					l->ttl = 0;
 					r->ttl = 0;
+					score += 5;
 				}
 			}
 		}
@@ -126,11 +127,13 @@ void missileCollision(struct missile *l, struct rock *r){
 
 /* Missile system */
 void missileSystem(){
-	struct missile *newShot = allocate_missile_node();
-	if(newShot){
-		newShot->next = shots;
-		shots = newShot;
-		newMissile(newShot);
+	if(player.shoot ==true){
+		struct missile *newShot = allocate_missile_node();
+		if(newShot){
+			newShot->next = shots;
+			shots = newShot;
+			newMissile(newShot);
+		}
 	}
 }
 
@@ -204,36 +207,35 @@ struct rock * newAsteroids(){
 					newRock->p.x = randrange(0,100);
 					newRock->p.y = randrange(0,270);
 					newRock->v.x = 1;
-					if(newRock->p.y > 140) newRock->v.y = -10;
-					if(newRock->p.y <= 140) newRock->v.y = 10;
+					if(newRock->p.y > 140) newRock->v.y = -5;
+					if(newRock->p.y <= 140) newRock->v.y = 5;
 				break;
 				case 2 :
 					newRock->p.x = randrange(280,480);
 					newRock->p.y = randrange(0,270);
 					newRock->v.x = -1;
-					if(newRock->p.y > 140) newRock->v.y = -10;
-					if(newRock->p.y <= 140) newRock->v.y = 10;
+					if(newRock->p.y > 140) newRock->v.y = -5;
+					if(newRock->p.y <= 140) newRock->v.y = 5;
 				break;	
 				case 3 :
 					newRock->p.x = randrange(0,480);
 					newRock->p.y = randrange(0,100);
 					newRock->v.y = 1;
-					if(newRock->p.x > 200) newRock->v.x = -10;
-					if(newRock->p.y <= 200) newRock->v.x = 10;
+					if(newRock->p.x > 200) newRock->v.x = -5;
+					if(newRock->p.y <= 200) newRock->v.x = 5;
 				break;	
 				case 4 :
 					newRock->p.x = randrange(0,480);
 					newRock->p.y = randrange(170,270);
 					newRock->v.y = 1;
-					if(newRock->p.x > 200) newRock->v.x = -10;
-					if(newRock->p.y <= 200) newRock->v.x = 10;
+					if(newRock->p.x > 200) newRock->v.x = -5;
+					if(newRock->p.y <= 200) newRock->v.x = 5;
 				break;
 				default:
 				break;
 			}
-			newRock->ttl = 2000;
+			newRock->ttl = 200;
 		}
-		updateRockList(asteroids);
 	}
 	return asteroids;
 }
@@ -286,19 +288,31 @@ void moveRocks(struct rock *l){
 void physics(void)
 {
 	if (mode){
-		elapsed_time = elapsed_time + 1;
+		elapsed_time = elapsed_time + Dt;
 		score += (int) elapsed_time;
 		
 		moveShip(player);
+		
+		missileSystem();
+		loadMissiles();
 		moveMissiles(shots);
-		moveRocks(asteroids);
 		
 		asteroids = newAsteroids();
+		loadAsteroids();
+		moveRocks(asteroids);
 		
-		missileCollision(shots, asteroids);
 		shipCollision(asteroids);
+		missileCollision(shots, asteroids);
 		
 		updateMissileList(shots);
 		updateRockList(asteroids);
+		
+		if(player.lives==0 && player.shields==0){
+			score = score;
+			elapsed_time = 0;
+			gameEnd = true;
+			game = false;
+			
+		}
 	} 
 }
