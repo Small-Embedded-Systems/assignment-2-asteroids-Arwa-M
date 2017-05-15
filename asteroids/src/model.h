@@ -15,6 +15,7 @@ struct ship {
 	coordinate_t p;
 	vector_t     v;
 	float angle;
+	bool shoot;
 	int direction; 
 	int shields;
 };
