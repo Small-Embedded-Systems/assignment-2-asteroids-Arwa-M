@@ -63,9 +63,9 @@ void drawSidebar(int lives, int shields, int elapsed_time, int score){
 	graphics->setTextColor(WHITE);
 	graphics->setTextSize(1);
 	graphics->setCursor(5,2);
-	graphics->printf("Lives Left:%i",lives);
+	graphics->printf("Lives Left:%i",player.lives);
 	graphics->setCursor(100,2);
-	graphics->printf("Shield:%i",shields);
+	graphics->printf("Shield:%i",player.shields);
 	graphics->setCursor(220,2);
 	graphics->printf("ASTEROIDS");
 	graphics->setCursor(360,2);
@@ -145,10 +145,6 @@ void gameMenu(){
 	graphics->setCursor(110,150);
 	graphics->printf("Press USERBTN to begin");
 	drawImg();
-	lives = 5;
-	shields = 3;
-	score = 0;
-	elapsed_time = 0;
 }
 
 /* Draw the game over screen */
@@ -160,11 +156,7 @@ void gameOver(){
 	graphics->printf("GAME OVER");
 	graphics->setCursor(160,150);
 	graphics->setTextSize(2);
-	graphics->printf("Final Total: %d ", score);
-	lives = 5;
-	shields = 3;
-	score = 0;
-	elapsed_time = 0;
+	graphics->printf("Final Total: %i ", score);
 }
 
 /* Draw the game paused screen */
@@ -184,7 +176,7 @@ void draw(void){
 	gameMenu();
 	if(mode){
 		graphics->fillScreen(background);
-		drawSidebar(lives, shields, elapsed_time, score);
+		drawSidebar(lives,shields,elapsed_time, score);
 		drawShip(player);
 		drawMissiles(shots);
 		drawRocks(asteroids);
@@ -194,7 +186,7 @@ void draw(void){
 		if(paused == false){
 			gamePlayed();
 		}
-		if(gameEnd == true){
+		if(gameEnd == true && game== false){
 			gameOver();
 		}
 	}
