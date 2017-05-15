@@ -118,7 +118,6 @@ void drawRocks(struct rock *lst){
 	}
 	while(lst){
 		graphics->drawBitmap(lst->p.x-20, lst->p.y-20, pic, rock_width, rock_height, rockColour);
-		graphics->fillCircle(lst->p.x,lst->p.y, 10, WHITE);
 		lst = lst->next;
 	}	
 }
