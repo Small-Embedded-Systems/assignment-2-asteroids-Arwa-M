@@ -19,6 +19,7 @@ static DigitalIn jsBtns[] = {P5_0, P5_4, P5_2, P5_1, P5_3}; // LFT, RGHT, UP, DW
 bool jsPrsdAndRlsd(btnId_t b);
 
 void controls(void){
+	player.shoot = false;
 	if(jsPrsdAndRlsd(JLT)){
 		//rotate ship anti-clockwise
 		moveLeft();
@@ -45,6 +46,7 @@ void controls(void){
 	}
 	else if(jsPrsdAndRlsd(JCR) && paused == false && mode == true){
 		//shoot missiles
+		player.shoot = true;
 		missileSystem();
 	}
 }
